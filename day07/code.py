@@ -50,6 +50,15 @@ class BeamSearch:
             with open("output.txt", "a") as file:
                 file.write((self).__str__() + "\n\n\n")
         return self.numbers_splitted
+    
+    def write_cleaned_map(self):
+        cleaned_map = [["."] * len(self.data[0]) for _ in range(len(self.data))]
+        cleaned_map[0][self.start_index] = "S"
+        for row, col in self.spliter_used:
+            cleaned_map[row][col] = "^"
+        content = "\n".join("".join(row) for row in cleaned_map)
+        with open("cleaned_map.txt", "w") as file:
+            file.write(content)
 
 def main():
     with open("input.txt", "r") as file:
@@ -58,6 +67,7 @@ def main():
     print(beam_search, end="\n\n")
     result = beam_search.move_loop()
     print(result)
+    beam_search.write_cleaned_map()
 
 if __name__ == "__main__":
     main()
