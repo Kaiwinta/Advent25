@@ -47,8 +47,6 @@ class BeamSearch:
     def move_loop(self):
         while self.beam_positions:
             self.moving_beams()
-            with open("output.txt", "a") as file:
-                file.write((self).__str__() + "\n\n\n")
         return self.numbers_splitted
     
     def write_cleaned_map(self):
@@ -60,14 +58,46 @@ class BeamSearch:
         with open("cleaned_map.txt", "w") as file:
             file.write(content)
 
+from collections import defaultdict
+
+def count_timelines(grid):
+    rows = len(grid)
+    cols = len(grid[0])
+    start_col = grid[0].index("S")
+    dp = defaultdict(int)
+    dp[(0, start_col)] = 1
+    finished = 0
+
+    for row in range(rows):
+        next_dp = defaultdict(int)
+        for (r, c), ways in dp.items():
+            if r != row:
+                continue
+            if r + 1 >= rows:
+                finished += ways
+                continue
+            cell = grid[r][c]
+            if cell == "^":
+                if c - 1 >= 0:
+                    next_dp[(r + 1, c - 1)] += ways
+                if c + 1 < cols:
+                    next_dp[(r + 1, c + 1)] += ways
+            else:
+                next_dp[(r + 1, c)] += ways
+
+        dp = next_dp
+    return finished + sum(dp.values())
+
 def main():
     with open("input.txt", "r") as file:
         data = [line.strip() for line in file.readlines()]
     beam_search = BeamSearch(data)
-    print(beam_search, end="\n\n")
     result = beam_search.move_loop()
     print(result)
-    beam_search.write_cleaned_map()
+    with open("input.txt") as f:
+        grid = [line.rstrip("\n") for line in f]
+    timelines = count_timelines(grid)
+    print(timelines)
 
 if __name__ == "__main__":
     main()
